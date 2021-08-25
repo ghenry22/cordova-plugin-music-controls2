@@ -14,7 +14,10 @@
 #import <MediaPlayer/MPNowPlayingInfoCenter.h>
 #import <MediaPlayer/MPMediaItem.h>
 
-@interface MusicControls : CDVPlugin {}
+@interface MusicControls : CDVPlugin
+{
+  bool _didRegister;
+}
 
 @property NSString * latestEventCallbackId;
 
@@ -32,7 +35,6 @@
 - (void) skipBackwardEvent: (MPSkipIntervalCommandEvent *) event;
 - (MPMediaItemArtwork *) createCoverArtwork: (NSString *) coverUri;
 - (bool) isCoverImageValid: (UIImage *) image;
-- (void) handleMusicControlsNotification:(NSNotification *) notification;
 - (void) registerMusicControlsEventListener;
 - (void) deregisterMusicControlsEventListener;
 
