@@ -3,6 +3,7 @@ package com.homerours.musiccontrols;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 
+import android.bluetooth.BluetoothDevice;
 import android.util.Log;
 import android.app.Activity;
 import android.content.Context;
