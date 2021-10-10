@@ -132,7 +132,7 @@ public class MusicControlsBroadcastReceiver extends BroadcastReceiver {
 			} else if (message.equals(BluetoothDevice.ACTION_ACL_CONNECTED)) {
 				this.cb.success("{\"message\": \"music-controls-bluetooth-device-connected\"}");
 				this.cb = null;
-			else if (message.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)) {
+			} else if (message.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)) {
 				this.cb.success("{\"message\": \"music-controls-bluetooth-device-disconnected\"}");
 				this.cb = null;
 			} else {
