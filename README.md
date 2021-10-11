@@ -20,6 +20,8 @@ updates to npm to make life easier for everyone.
 `cordova plugin add cordova-plugin-music-controls2`
 - Bleeding edge direct from github
 `cordova plugin add https://github.com/ghenry22/cordova-plugin-music-controls2`
+- Bleeding edge direct from github by the7erm
+`cordova plugin add https://github.com/the7erm/cordova-plugin-music-controls2`
 
 ## Methods
 - Create the media controls:
@@ -113,6 +115,14 @@ function events(action) {
 		case 'music-controls-headset-plugged':
 			// Do something
 			break;
+
+		// Bluetooth connection/disconnection Android only.
+		case 'music-controls-bluetooth-device-connected':
+			// Do something
+			break;
+		case 'music-controls-bluetooth-device-disconnected':
+			// Do something
+			break;
 		default:
 			break;
 	}
@@ -149,12 +159,26 @@ MusicControls.updateElapsed({
 
 - Android only:
 ```javascript
-'music-controls-media-button-next', 'music-controls-media-button-pause', 'music-controls-media-button-play',
-'music-controls-media-button-play-pause', 'music-controls-media-button-previous', 'music-controls-media-button-stop',
-'music-controls-media-button-fast-forward', 'music-controls-media-button-rewind', 'music-controls-media-button-skip-backward',
-'music-controls-media-button-skip-forward', 'music-controls-media-button-step-backward', 'music-controls-media-button-step-forward',
-'music-controls-media-button-meta-left', 'music-controls-media-button-meta-right', 'music-controls-media-button-music',
-'music-controls-media-button-volume-up', 'music-controls-media-button-volume-down', 'music-controls-media-button-volume-mute',
+'music-controls-bluetooth-device-connected',
+'music-controls-bluetooth-device-disconnected',
+'music-controls-media-button-next',
+'music-controls-media-button-pause',
+'music-controls-media-button-play',
+'music-controls-media-button-play-pause',
+'music-controls-media-button-previous',
+'music-controls-media-button-stop',
+'music-controls-media-button-fast-forward',
+'music-controls-media-button-rewind',
+'music-controls-media-button-skip-backward',
+'music-controls-media-button-skip-forward',
+'music-controls-media-button-step-backward',
+'music-controls-media-button-step-forward',
+'music-controls-media-button-meta-left',
+'music-controls-media-button-meta-right',
+'music-controls-media-button-music',
+'music-controls-media-button-volume-up',
+'music-controls-media-button-volume-down',
+'music-controls-media-button-volume-mute',
 'music-controls-media-button-headset-hook'
 ```
 
