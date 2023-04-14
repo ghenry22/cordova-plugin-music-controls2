@@ -63,6 +63,15 @@ var musicControls = {
       [{ dismissable: dismissable }]
     );
   },
+  updateDuration: function(duration, successCallback, errorCallback) {
+    cordova.exec(
+        successCallback,
+        errorCallback,
+        "MusicControls",
+        "updateDuration",
+        [{ duration: duration }]
+    );
+  },
 
   destroy: function(successCallback, errorCallback) {
     cordova.exec(

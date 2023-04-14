@@ -70,6 +70,22 @@ MusicControlsInfo * musicControlsSettings;
     nowPlayingCenter.nowPlayingInfo = updatedNowPlayingInfo;
 }
 
+- (void) updateDuration: (CDVInvokedUrlCommand *) command {
+    NSDictionary * musicControlsInfoDict = [command.arguments objectAtIndex:0];
+    MusicControlsInfo * musicControlsInfo = [[MusicControlsInfo alloc] initWithDictionary:musicControlsInfoDict];
+    NSNumber * duration = [NSNumber numberWithDouble:[musicControlsInfo duration]];
+
+    if (!NSClassFromString(@"MPNowPlayingInfoCenter")) {
+        return;
+    }
+
+    MPNowPlayingInfoCenter * nowPlayingCenter = [MPNowPlayingInfoCenter defaultCenter];
+    NSMutableDictionary * updatedNowPlayingInfo = [NSMutableDictionary dictionaryWithDictionary:nowPlayingCenter.nowPlayingInfo];
+
+    [updatedNowPlayingInfo setObject:duration forKey:MPMediaItemPropertyPlaybackDuration];
+    nowPlayingCenter.nowPlayingInfo = updatedNowPlayingInfo;
+}
+
 // this was performing the full function of updateIsPlaying and just adding elapsed time update as well
 // moved the elapsed update into updateIsPlaying and made this just pass through to reduce code duplication
 - (void) updateElapsed: (CDVInvokedUrlCommand *) command {
