@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Notification;
+import android.bluetooth.BluetoothDevice;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -68,8 +69,13 @@ public class MusicControls extends CordovaPlugin {
 		// Listen for headset plug/unplug
 		context.registerReceiver((BroadcastReceiver)mMessageReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
 		
-		// Listen for bluetooth connection state changes
+		// Listen for bluet/ooth connection state changes
 		context.registerReceiver((BroadcastReceiver)mMessageReceiver, new IntentFilter(android.bluetooth.BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED));
+
+		// Listen for bluetooth connect/disconnect.
+		// Stolen from https://github.com/preterive/cordova-music-controls-plugin/blob/patch-2/src/android/MusicControls.java
+		context.registerReceiver(mMessageReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED));
+		context.registerReceiver(mMessageReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED));
 	}
 
 	// Register pendingIntent for broacast
