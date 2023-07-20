@@ -3,6 +3,7 @@ package com.homerours.musiccontrols;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 
+import android.bluetooth.BluetoothDevice;
 import android.util.Log;
 import android.app.Activity;
 import android.content.Context;
@@ -129,6 +130,12 @@ public class MusicControlsBroadcastReceiver extends BroadcastReceiver {
 				this.cb.success("{\"message\": \"music-controls-destroy\"}");
 				this.cb = null;
 				this.musicControls.destroyPlayerNotification();
+			} else if (message.equals(BluetoothDevice.ACTION_ACL_CONNECTED)) {
+				this.cb.success("{\"message\": \"music-controls-bluetooth-device-connected\"}");
+				this.cb = null;
+			} else if (message.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)) {
+				this.cb.success("{\"message\": \"music-controls-bluetooth-device-disconnected\"}");
+				this.cb = null;
 			} else {
 				this.cb.success("{\"message\": \"" + message + "\"}");
 				this.cb = null;
