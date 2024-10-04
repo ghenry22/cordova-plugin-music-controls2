@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+//import android.util.Log;
 
 public class MusicControlsServiceConnection implements ServiceConnection {
     protected MusicControlsNotificationKiller service;
@@ -27,11 +28,19 @@ public class MusicControlsServiceConnection implements ServiceConnection {
         if (this.service == null) {
             return;
         }
+        this.service.setForeground(notification);
 
-        if (isPlaying) {
+       /* if (isPlaying) {
             this.service.setForeground(notification);
         } else {
             this.service.clearForeground();
+        } */
+    }
+
+    void killNotification() {
+        if (this.service == null) {
+            return;
         }
+        this.service.killForeground();
     }
 }

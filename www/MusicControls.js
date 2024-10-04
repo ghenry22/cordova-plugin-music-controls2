@@ -40,6 +40,27 @@ var musicControls = {
       [{ isPlaying: isPlaying }]
     );
   },
+  updateIsBuffering: function(args, successCallback, errorCallback) {
+    cordova.exec(
+      successCallback,
+      errorCallback,
+      "MusicControls",
+      "updateIsBuffering",
+      [{ 
+          elapsed: args.elapsed,
+          isBuffering: args.isBuffering
+      }]
+    );
+  },
+  updateShuffle: function(isShuffle, successCallback, errorCallback) {
+    cordova.exec(
+      successCallback,
+      errorCallback,
+      "MusicControls",
+      "updateShuffle",
+      [{ isShuffle: isShuffle }]
+    );
+  },
   updateElapsed: function(args, successCallback, errorCallback) {
     cordova.exec(
       successCallback,

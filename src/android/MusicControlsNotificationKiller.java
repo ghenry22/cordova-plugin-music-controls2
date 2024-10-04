@@ -2,11 +2,12 @@ package com.homerours.musiccontrols;
 
 import android.app.Notification;
 import android.app.Service;
-import android.os.Build;
-import android.os.IBinder;
-import android.os.Binder;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Build;
+import android.os.IBinder;
+
+//import android.os.Binder;
 
 public class MusicControlsNotificationKiller extends Service {
 
@@ -16,9 +17,10 @@ public class MusicControlsNotificationKiller extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		this.NOTIFICATION_ID=intent.getIntExtra("notificationID",1);
+		this.NOTIFICATION_ID = intent.getIntExtra("notificationID", 1);
 		return mBinder;
 	}
+
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		return Service.START_STICKY;
@@ -40,11 +42,22 @@ public class MusicControlsNotificationKiller extends Service {
 		this.startForeground(this.NOTIFICATION_ID, notification);
 	}
 
-	public void clearForeground() {
+	private void setForegroundService(int state) {
 		if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
 			return;
 		}
+		// Using STOP_FOREGROUND_DETACH instead of STOP_FOREGROUND_REMOVE will keep the
+		// notification alive
+		this.stopForeground(state);
+	}
 
-		this.stopForeground(STOP_FOREGROUND_DETACH);
+	public void clearForeground() {
+		// using STOP_FOREGROUND_DETACH instead of STOP_FOREGROUND_REMOVE will keep the notification alive
+		this.setForegroundService(STOP_FOREGROUND_DETACH);
+	}
+
+	public void killForeground() {
+		// Using STOP_FOREGROUND_DETACH instead of STOP_FOREGROUND_REMOVE will keep the notification alive
+		this.setForegroundService(STOP_FOREGROUND_REMOVE);
 	}
 }

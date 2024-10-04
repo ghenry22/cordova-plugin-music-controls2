@@ -3,148 +3,175 @@ package com.homerours.musiccontrols;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
+import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
+
+/*
+* The onMediaButtonEvent method is called when using external devices, such as bluetooth devices.
+* The other methods like OnPlay, OnPause and etc are called from the notification itself.
+* Couldn't find where the BroadcastReceiver class is used, but apparently it is used for wired headsets (?).
+*/
 
 public class MediaSessionCallback extends MediaSessionCompat.Callback {
 
   private CallbackContext cb;
+  private MediaSessionCompat mediaSessionCompat;
 
-  public void setCallback(CallbackContext cb){
+  public MediaSessionCallback(MediaSessionCompat mediaSessionCompat) {
+    this.mediaSessionCompat = mediaSessionCompat;
+  }
+
+  public void setCallback(CallbackContext cb) {
     this.cb = cb;
+  }
+
+  public void sendMessage(String message) {
+    sendMessage(message, null);
+  }
+
+  public void sendMessage(String message, String extra) {
+    CallbackUtils.sendMessage(cb, message, extra);
   }
 
   @Override
   public void onPlay() {
+    Log.d("MusicControls", "On Play");
     super.onPlay();
-    if(this.cb != null) {
-      this.cb.success("{\"message\": \"music-controls-play\", \"source\": \"music-controls-media-button-play 1\"}");
-      this.cb = null;
-    }
+    handlePlay();
   }
 
   @Override
   public void onPause() {
+    Log.d("MusicControls", "On Pause");
     super.onPause();
-    if(this.cb != null) {
-      this.cb.success("{\"message\": \"music-controls-pause\", \"source\": \"music-controls-media-button-pause 1\"}");
-      this.cb = null;
-    }
+    handlePause();
   }
 
   @Override
   public void onSkipToNext() {
+    Log.d("MusicControls", "On Skip to Next");
     super.onSkipToNext();
-    if(this.cb != null) {
-      this.cb.success("{\"message\": \"music-controls-next\", \"source\": \"music-controls-media-button-next 1\"}");
-      this.cb = null;
-    }
+    sendMessage(CallbackUtils.MUSIC_CONTROLS_NEXT);
   }
 
   @Override
   public void onSkipToPrevious() {
+    Log.d("MusicControls", "On Skip To Previous");
     super.onSkipToPrevious();
-    if(this.cb != null) {
-      this.cb.success("{\"message\": \"music-controls-previous\", \"source\": \"music-controls-media-button-previous 1\"}");
-      this.cb = null;
-    }
+    sendMessage(CallbackUtils.MUSIC_CONTROLS_PREVIOUS);
   }
 
   @Override
   public void onSeekTo(long pos) {
+    Log.d("MusicControls", "On Seek To");
     super.onSeekTo(pos);
-    if (this.cb != null) {
-      this.cb.success("{" +
-              "\"message\": \"music-controls-seek-to\"," +
-              "\"position\": " + (pos / 1000) +
-              "}");
-      this.cb = null;
-    }
+    sendMessage(CallbackUtils.MUSIC_CONTROLS_SEEK_TO, Long.toString(pos));
   }
 
   @Override
   public void onPlayFromMediaId(String mediaId, Bundle extras) {
+    Log.d("MusicControls", "On Play From Media");
     super.onPlayFromMediaId(mediaId, extras);
   }
 
   @Override
-  public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
-    final KeyEvent event = (KeyEvent) mediaButtonIntent.getExtras().get(Intent.EXTRA_KEY_EVENT);
+  public void onSetShuffleMode(int shuffleMode) {
+    Log.d("MusicControls", "On Set Shuffle Mode");
+    super.onSetShuffleMode(shuffleMode);
+    sendMessage(CallbackUtils.MUSIC_CONTROLS_SET_SHUFFLE_MODE, Long.toString(shuffleMode));
+  }
 
+  @Override
+  public void onCustomAction(String action, Bundle extras) {
+    Log.d("MusicControls", "Unknown custom action " + action);
+    super.onCustomAction(action, extras);
+  }
+
+  @Override
+  public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
+    Log.d("MusicControls", "on Media Button Event");
+    final KeyEvent event = (KeyEvent) mediaButtonIntent.getExtras().get(Intent.EXTRA_KEY_EVENT);
     if (event == null) {
       return super.onMediaButtonEvent(mediaButtonIntent);
     }
 
+    Log.d("MusicControls", "on Media Button Event - Action: " + event.getAction());
+
     if (event.getAction() == KeyEvent.ACTION_DOWN) {
       final int keyCode = event.getKeyCode();
-      switch (keyCode) {
-        case KeyEvent.KEYCODE_MEDIA_PAUSE:
+      final String message = CallbackUtils.switchMediaButtonKeyCode(keyCode);
+      Log.d("MusicControls", "onMedia Button Event - Key Code: " + keyCode);
 
-          if(this.cb != null) {
-            this.cb.success("{\"message\": \"music-controls-pause\", \"source\": \"music-controls-media-button-pause\"}");
-            this.cb = null;
-          }
+      if (keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE ||
+          keyCode == KeyEvent.KEYCODE_MEDIA_PLAY ||
+          keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE) {
+        if (isPlaying()) {
+          handlePause();
+        } else {
+          handlePlay();
+        }
+      } else if (message == CallbackUtils.MUSIC_CONTROLS_MEDIA_BUTTON_UNKNOWN) {
+        sendMessage(message, Integer.toString(keyCode));
+      } else {
+        sendMessage(message);
+      }
+
+      return super.onMediaButtonEvent(mediaButtonIntent);
+    }
+
+    return false;
+  }
+
+  private boolean isPlaying() {
+    Log.d("MusicControls", "checking playing status against playback state");
+    boolean result = false;
+    PlaybackStateCompat playbackState = mediaSessionCompat.getController().getPlaybackState();
+
+    if (playbackState != null) {
+      int state = playbackState.getState();
+
+      switch (state) {
+        case PlaybackStateCompat.STATE_PLAYING:
+          result = true;
+          Log.d("MusicControls", "The media is playing");
           break;
-        case KeyEvent.KEYCODE_MEDIA_PLAY:
-
-          if(this.cb != null) {
-            this.cb.success("{\"message\": \"music-controls-play\", \"source\": \"music-controls-media-button-play\"}");
-            this.cb = null;
-          }
-          break;
-        case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-
-          if(this.cb != null) {
-            this.cb.success("{\"message\": \"music-controls-previous\", \"source\": \"music-controls-media-button-previous\"}");
-            this.cb = null;
-          }
-          break;
-        case KeyEvent.KEYCODE_MEDIA_NEXT:
-
-          if(this.cb != null) {
-            this.cb.success("{\"message\": \"music-controls-next\", \"source\": \"music-controls-media-button-next\"}");
-            this.cb = null;
-          }
-          break;
-        case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-
-          if(this.cb != null) {
-            this.cb.success("{\"message\": \"music-controls-toggle-play-pause\", \"source\": \"music-controls-media-button-play-pause\"}");
-            this.cb = null;
-          }
-          break;
-        case KeyEvent.KEYCODE_MEDIA_STOP:
-
-          if(this.cb != null) {
-            this.cb.success("{\"message\": \"music-controls-stop\", \"source\": \"music-controls-media-button-stop\"}");
-            this.cb = null;
-          }
-          break;
-        case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
-
-          if(this.cb != null) {
-            this.cb.success("{\"message\": \"music-controls-forward\", \"source\": \"music-controls-media-button-forward\"}");
-            this.cb = null;
-          }
-          break;
-        case KeyEvent.KEYCODE_MEDIA_REWIND:
-
-          if(this.cb != null) {
-            this.cb.success("{\"message\": \"music-controls-rewind\", \"source\": \"music-controls-media-button-rewind\"}");
-            this.cb = null;
-          }
+        case PlaybackStateCompat.STATE_PAUSED:
+          Log.d("MusicControls", "The media is paused");
           break;
         default:
-          if(this.cb != null) {
-            this.cb.success("{\"message\": \"music-controls-unknown-" + keyCode + "\", \"source\": \"music-controls-media-button-unknown-" + keyCode + "\"}");
-            this.cb = null;
-          }
-          return super.onMediaButtonEvent(mediaButtonIntent);
+          Log.d("PlaybackState", "Unknown state.");
+          break;
       }
     }
 
-    return true;
+    return result;
   }
-}
 
+  private void updatePlayState(boolean isPlaying) {
+    PlaybackStateCompat currentPlaybackState = mediaSessionCompat.getController().getPlaybackState();
+    long currentPosition = currentPlaybackState.getPosition();
+    long actions = currentPlaybackState.getActions();
+    int state = isPlaying ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
+    this.mediaSessionCompat.setPlaybackState(new PlaybackStateCompat.Builder()
+        .setActions(actions)
+        .setState(state, currentPosition, 0.0f)
+        .build());
+
+  }
+
+  private void handlePlay() {
+    Log.d("MusicControls", "handlePlay - updatePlayState ");
+    updatePlayState(true);
+    sendMessage(CallbackUtils.MUSIC_CONTROLS_PLAY);
+  }
+
+  private void handlePause() {
+    Log.d("MusicControls", "handlePause - updatePlayState ");
+    updatePlayState(false);
+    sendMessage(CallbackUtils.MUSIC_CONTROLS_PAUSE);
+  }
+
+}

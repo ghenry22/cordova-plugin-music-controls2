@@ -45,7 +45,7 @@ public class MusicControlsInfos{
 		this.closeIcon = params.getString("closeIcon");
 		this.hasScrubbing = params.getBoolean("hasScrubbing");
 		this.notificationIcon = params.getString("notificationIcon");
-		this.duration = params.getLong("duration") * 1000;
-		this.elapsed = params.getLong("elapsed") * 1000;
+		this.duration = params.getLong("duration");
+		this.elapsed = params.getLong("elapsed");
 	}
 }
